@@ -305,4 +305,18 @@ $(document).ready(function() {
     equal(_.size([1, 2, 3]), 3, 'can compute the size of an array');
   });
 
+  test("collections: categorize", function() {
+    var array = ['foo', 'bar', 'baz'];
+    var categorizer = function(chr, value) {
+      return value.charAt(chr);
+    };
+    var result0 = _.categorize(array, categorizer.bind(this, 0));
+    equal(_.keys(result0).join(''), 'fb', 'creates an object with the correct keys');
+    equal(result0.f.length, 1, 'places just one value in the "f" array');
+    equal(result0.f[0], 'foo', 'places the correct value in the "f" array');
+    equal(result0.b.length, 2, 'places the correct values in the "b" array');
+    var result1 = _.categorize(array, categorizer.bind(this, 1));
+    equal(_.keys(result1).join(''), 'oa', 'creates an object with the correct keys using a different categorizer');
+  });
+
 });

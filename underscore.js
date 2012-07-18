@@ -342,6 +342,21 @@
     return _.isArray(obj) ? obj.length : _.keys(obj).length;
   };
 
+  // Create an object of arrays where the key is determined by the categorizing
+  // callback. The callback is given the ``value``, ``index``, and ``array`` reference.
+  // May also provide an optional ``baseObject`` to insert the sub-arrays.
+  _.categorize = function(array, categorizer, baseObject) {
+    return _.reduce(array, function(object, value, index, array) {
+      var key = categorizer(value, index, array);
+      if(object[key] instanceof Array) {
+        object[key].push(value);
+      } else {
+        object[key] = [value];
+      }
+      return object;
+    }, baseObject || {});
+  };
+
   // Array Functions
   // ---------------
 
