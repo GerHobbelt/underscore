@@ -44,17 +44,14 @@ $(document).ready(function() {
     var doubled = _([1, 2, 3]).map(function(num){ return num * 2; });
     equal(doubled.join(', '), '2, 4, 6', 'OO-style doubled numbers');
 
-    var ids = _.map($('div.underscore-test').children(), function(n){ return n.id; });
-    ok(_.include(ids, 'qunit-header'), 'can use collection methods on NodeLists');
+    var ids = _.map($('#map-test').children(), function(n){ return n.id; });
+    deepEqual(ids, ['id1', 'id2'], 'Can use collection methods on NodeLists.');
 
     var ids = _.map(document.images, function(n){ return n.id; });
     ok(ids[0] == 'chart_image', 'can use collection methods on HTMLCollections');
 
     var ifnull = _.map(null, function(){});
     ok(_.isArray(ifnull) && ifnull.length === 0, 'handles a null properly');
-
-    var length = _.map(Array(2), function(v) { return v; }).length;
-    equal(length, 2, "can preserve a sparse array's length");
   });
 
   test('collections: reduce', function() {
@@ -85,11 +82,6 @@ $(document).ready(function() {
     ok(_.reduce(null, function(){}, 138) === 138, 'handles a null (with initial value) properly');
     equal(_.reduce([], function(){}, undefined), undefined, 'undefined can be passed as a special case');
     raises(function() { _.reduce([], function(){}); }, TypeError, 'throws an error for empty arrays with no initial value');
-
-    var sparseArray = [];
-    sparseArray[0] = 20;
-    sparseArray[2] = -5;
-    equal(_.reduce(sparseArray, function(a, b){ return a - b; }), 25, 'initially-sparse arrays with no memo');
   });
 
   test('collections: reduceRight', function() {
@@ -114,11 +106,12 @@ $(document).ready(function() {
 
     equal(_.reduceRight([], function(){}, undefined), undefined, 'undefined can be passed as a special case');
     raises(function() { _.reduceRight([], function(){}); }, TypeError, 'throws an error for empty arrays with no initial value');
+  });
 
-    var sparseArray = [];
-    sparseArray[0] = 20;
-    sparseArray[2] = -5;
-    equal(_.reduceRight(sparseArray, function(a, b){ return a - b; }), -25, 'initially-sparse arrays with no memo');
+  test('collections: find', function() {
+    var array = [1, 2, 3, 4];
+    strictEqual(_.find(array, function(n) { return n > 2; }), 3, 'should return first found `value`');
+    strictEqual(_.find(array, function() { return false; }), void 0, 'should return `undefined` if `value` is not found');
   });
 
   test('collections: detect', function() {
@@ -171,6 +164,43 @@ $(document).ready(function() {
     ok(!_.include([1,3,9], 2), 'two is not in the array');
     ok(_.contains({moe:1, larry:3, curly:9}, 3) === true, '_.include on objects checks their values');
     ok(_([1,2,3]).include(2), 'OO-style include');
+    ok(_.include('test this out', 'out'), 'include with a string');
+    ok(!_.include('test this out', 'not included'), 'include with a string (false)');
+    ok(_.include('1 2 3 4', 3), 'include with a string and number');
+    ok(_.include(new String('test this'), 'test'), 'works with boxed strings');
+    ok(_('test this out').include('this'), 'OO-style include with a string');
+  });
+
+  test('collections: startsWith', function () {
+    ok(_.startsWith('a string', 'a str'), 'startsWith');
+    ok(_.startsWith('a string', 'a string'), 'longer startsWith');
+    ok(_.startsWith('a string', ''), 'startsWith empty string');
+    ok(!_.startsWith('a string', 'something else'), 'not startsWith');
+    ok(!_.startsWith('a string', 'a string plus'), 'not startsWith longer');
+    ok(_('a string').startsWith('a s'), 'OO-style startsWith');
+    ok(_.startsWith('1234 test', 1234), 'startsWith coercion');
+    ok(_.startsWith((new String('a string')), 'a string'), 'boxed startsWith');
+    ok(_.startsWith([1, 2, 3, 4, 5], [1, 2]), 'startsWith array');
+    ok(!_.startsWith([1, 2, 3, 4, 5], [1, 3]), 'not startsWith array');
+    ok(_.startsWith([1, 2, 3, 4, 5], []), 'startsWith empty array');
+    ok(!_.startsWith([1, 2, 3, 4], 1), 'startsWith mixed arrays');
+    ok(!_.startsWith({0: 'test'}, {0: 'test'}), 'startsWith objects returns false');
+  });
+
+  test('collections: endsWith', function () {
+    ok(_.endsWith('a string', 'ring'), 'endsWith');
+    ok(_.endsWith('a string', 'a string'), 'longer endsWith');
+    ok(_.endsWith('a string', ''), 'endsWith empty string');
+    ok(!_.endsWith('a string', 'something else'), 'not endsWith');
+    ok(!_.endsWith('a string', 'plus a string'), 'not endsWith longer');
+    ok(_('a string').endsWith('ring'), 'OO-style endsWith');
+    ok(_.endsWith('test 1234', 1234), 'endsWith coercion');
+    ok(_.endsWith((new String('a string')), 'a string'), 'boxed endsWith');
+    ok(_.endsWith([1, 2, 3, 4, 5], [4, 5]), 'endsWith array');
+    ok(!_.endsWith([1, 2, 3, 4, 5], [3, 5]), 'not endsWith array');
+    ok(_.endsWith([1, 2, 3, 4, 5], []), 'endsWith empty array');
+    ok(!_.endsWith([1, 2, 3, 4], 4), 'endsWith mixed arrays');
+    ok(!_.endsWith({0: 'test'}, {0: 'test'}), 'endsWith objects returns false');
   });
 
   test('collections: invoke', function() {
@@ -215,6 +245,8 @@ $(document).ready(function() {
 
     equal(-Infinity, _.max({}), 'Maximum value of an empty object');
     equal(-Infinity, _.max([]), 'Maximum value of an empty array');
+
+    equal(299999, _.max(_.range(1,300000)), "Maximum value of a too-big array");
   });
 
   test('collections: min', function() {
@@ -229,6 +261,8 @@ $(document).ready(function() {
     var now = new Date(9999999999);
     var then = new Date(0);
     equal(_.min([now, then]), then);
+
+    equal(1, _.min(_.range(1,300000)), "Minimum value of a too-big array");
   });
 
   test('collections: sortBy', function() {
@@ -256,10 +290,42 @@ $(document).ready(function() {
     equal(grouped['5'].join(' '), 'three seven eight');
   });
 
+  test('collections: groupBy with selector', function() {
+    var list = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+
+    var selected = _.groupBy(list, 'length', function(num){ return num.substr(0, 2); });
+    deepEqual(selected, {
+      '3': ['on', 'tw', 'si', 'te'],
+      '4': ['fo', 'fi', 'ni'],
+      '5': ['th', 'se', 'ei']
+    });
+
+    var lens = _.groupBy(list, function(num){ return num.indexOf('f'); }, 'length');
+    deepEqual(lens, {
+      '-1': [3, 3, 5, 3, 5, 5, 4, 3],
+      '0': [4, 4],
+    });
+  });
+
+  test('collections: countBy', function() {
+    var parity = _.countBy([1, 2, 3, 4, 5], function(num){ return num % 2 == 0; });
+    equal(parity['true'], 2);
+    equal(parity['false'], 3);
+
+    var list = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+    var grouped = _.countBy(list, 'length');
+    equal(grouped['3'], 4);
+    equal(grouped['4'], 3);
+    equal(grouped['5'], 3);
+  });
+
   test('collections: sortedIndex', function() {
     var numbers = [10, 20, 30, 40, 50], num = 35;
-    var index = _.sortedIndex(numbers, num);
-    equal(index, 3, '35 should be inserted at index 3');
+    var indexForNum = _.sortedIndex(numbers, num);
+    equal(indexForNum, 3, '35 should be inserted at index 3');
+
+    var indexFor30 = _.sortedIndex(numbers, 30);
+    equal(indexFor30, 2, '30 should be inserted at index 2');
   });
 
   test('collections: shuffle', function() {
@@ -278,12 +344,12 @@ $(document).ready(function() {
 
     var numbers = _.toArray({one : 1, two : 2, three : 3});
     equal(numbers.join(', '), '1, 2, 3', 'object flattened into array');
-    
+
     var objectWithToArrayFunction = {toArray: function() {
         return [1, 2, 3];
     }};
     equal(_.toArray(objectWithToArrayFunction).join(', '), '1, 2, 3', 'toArray method used if present');
-    
+
     var objectWithToArrayValue = {toArray: 1};
     equal(_.toArray(objectWithToArrayValue).join(', '), '1', 'toArray property ignored if not a function');
   });
@@ -291,6 +357,20 @@ $(document).ready(function() {
   test('collections: size', function() {
     equal(_.size({one : 1, two : 2, three : 3}), 3, 'can compute the size of an object');
     equal(_.size([1, 2, 3]), 3, 'can compute the size of an array');
+  });
+
+  test("collections: categorize", function() {
+    var array = ['foo', 'bar', 'baz'];
+    var categorizer = function(chr, value) {
+      return value.charAt(chr);
+    };
+    var result0 = _.categorize(array, categorizer.bind(this, 0));
+    equal(_.keys(result0).join(''), 'fb', 'creates an object with the correct keys');
+    equal(result0.f.length, 1, 'places just one value in the "f" array');
+    equal(result0.f[0], 'foo', 'places the correct value in the "f" array');
+    equal(result0.b.length, 2, 'places the correct values in the "b" array');
+    var result1 = _.categorize(array, categorizer.bind(this, 1));
+    equal(_.keys(result1).join(''), 'oa', 'creates an object with the correct keys using a different categorizer');
   });
 
 });

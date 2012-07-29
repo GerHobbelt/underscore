@@ -274,6 +274,7 @@
       <li>- <a href="#isNaN">isNaN</a></li>
       <li>- <a href="#isNull">isNull</a></li>
       <li>- <a href="#isUndefined">isUndefined</a></li>
+      <li>- <a href="#isNullOrUndefined">isNullOrUndefined</a></li>
     </ul>
 
     <a class="toc_title" href="#utility">
@@ -370,8 +371,6 @@
       </tr>
     </table>
 
-    <div class="warning">Upgrade warning: versions 1.3.0 and higher remove AMD (RequireJS) support.</div>
-
     <div id="documentation">
 
       <h2 id="collections">Collection Functions (Arrays or Objects)</h2>
@@ -415,7 +414,9 @@ _.map({one : 1, two : 2, three : 3}, function(num, key){ return num * 3; });
         Also known as <b>inject</b> and <b>foldl</b>, <b>reduce</b> boils down a
         <b>list</b> of values into a single value. <b>Memo</b> is the initial state
         of the reduction, and each successive step of it should be returned by
-        <b>iterator</b>.
+        <b>iterator</b>. The iterator is passed four arguments: the <tt>memo</tt>,
+        then the <tt>value</tt> and <tt>index</tt> (or key) of the iteration,
+        and finally a reference to the entire <tt>list</tt>.
       </p>
       <pre>
 var sum = _.reduce([1, 2, 3], function(memo, num){ return memo + num; }, 0);
@@ -640,7 +641,10 @@ _.size({one : 1, two : 2, three : 3});
       <h2 id="arrays">Array Functions</h2>
 
       <p>
-        <i>Note: All array functions will also work on the <b>arguments</b> object.</i>
+        <i>
+          Note: All array functions will also work on the <b>arguments</b> object.
+          However, Underscore functions are not designed to work on "sparse" arrays.
+        </i>
       </p>
 
       <p id="first">
@@ -943,15 +947,15 @@ $(window).scroll(throttled);
         preview of a Markdown comment, recalculating a layout after the window
         has stopped being resized, and so on.
       </p>
-      
+
       <p>
-        Pass <tt>true</tt> for the <b>immediate</b> parameter to cause 
-        <b>debounce</b> to trigger the function on the leading intead of the 
-        trailing edge of the <b>wait</b> interval. Useful in circumstances like 
-        preventing accidental double-clicks on a "submit" button from firing a 
+        Pass <tt>true</tt> for the <b>immediate</b> parameter to cause
+        <b>debounce</b> to trigger the function on the leading instead of the
+        trailing edge of the <b>wait</b> interval. Useful in circumstances like
+        preventing accidental double-clicks on a "submit" button from firing a
         second time.
       </p>
-      
+
       <pre>
 var lazyLayout = _.debounce(calculateLayout, 300);
 $(window).resize(lazyLayout);
@@ -1184,7 +1188,8 @@ _.isArray([1,2,3]);
       <p id="isObject">
         <b class="header">isObject</b><code>_.isObject(value)</code>
         <br />
-        Returns <i>true</i> if <b>value</b> is an Object.
+        Returns <i>true</i> if <b>value</b> is an Object. Note that JavaScript
+        arrays and functions are objects, while (normal) strings and numbers are not.
       </p>
       <pre>
 _.isObject({});
@@ -1307,13 +1312,27 @@ _.isNull(undefined);
 </pre>
 
       <p id="isUndefined">
-        <b class="header">isUndefined</b><code>_.isUndefined(variable)</code>
+        <b class="header">isUndefined</b><code>_.isUndefined(value)</code>
         <br />
-        Returns <i>true</i> if <b>variable</b> is <i>undefined</i>.
+        Returns <i>true</i> if <b>value</b> is <i>undefined</i>.
       </p>
       <pre>
 _.isUndefined(window.missingVariable);
 =&gt; true
+</pre>
+
+      <p id="isNullOrUndefined">
+        <b class="header">isNullOrUndefined</b><code>_.isNullOrUndefined(object)</code>
+        <br />
+        Returns <i>true</i> if the value of <b>object</b> is <i>null</i> or <i>undefined</i>.
+      </p>
+      <pre>
+_.isNullOrUndefined(null);
+=&gt; true
+_.isNullOrUndefined(undefined);
+=&gt; true
+_.isNullOrUndefined(42);
+=&gt; false
 </pre>
 
       <h2 id="utility">Utility Functions</h2>
@@ -1341,9 +1360,10 @@ moe === _.identity(moe);
 =&gt; true</pre>
 
       <p id="times">
-        <b class="header">times</b><code>_.times(n, iterator)</code>
+        <b class="header">times</b><code>_.times(n, iterator, [context])</code>
         <br />
-        Invokes the given iterator function <b>n</b> times.
+        Invokes the given iterator function <b>n</b> times, each time passing
+        in a number from <i>0</i> to <i><b>n</b> - 1</i> as the first argument.
       </p>
       <pre>
 _(3).times(function(){ genie.grantWish(); });</pre>
@@ -1411,7 +1431,7 @@ _.result(object, 'stuff');
         variables. If you're writing a one-off, you can pass the <b>data</b>
         object as the second parameter to <b>template</b> in order to render
         immediately instead of returning a template function.  The <b>settings</b> argument
-        should be a hash containing any <tt>_.templateSettings</tt> that should be overriden.
+        should be a hash containing any <tt>_.templateSettings</tt> that should be overridden.
       </p>
 
       <pre>
@@ -1558,10 +1578,23 @@ _([1, 2, 3]).value();
       <h2 id="links">Links &amp; Suggested Reading</h2>
 
       <p>
+        The Underscore documentation is also available in
+        <a href="http://learning.github.com/underscore/">Simplified Chinese</a>.
+      </p>
+
+      <p>
         <a href="http://mirven.github.com/underscore.lua/">Underscore.lua</a>,
         a Lua port of the functions that are applicable in both languages.
         Includes OOP-wrapping and chaining.
         The <a href="http://github.com/mirven/underscore.lua">source</a> is
+        available on GitHub.
+      </p>
+
+      <p>
+        <a href="http://underscorem.org">Underscore.m</a>, an Objective-C port
+        of many of the Underscore.js functions, using a syntax that encourages
+        chaining.
+        The <a href="https://github.com/robb/Underscore.m">source</a> is
         available on GitHub.
       </p>
 
@@ -1578,6 +1611,12 @@ _([1, 2, 3]).value();
         a Perl port of many of the Underscore.js functions,
         aimed at on Perl hashes and arrays, also
         <a href="https://github.com/vti/underscore-perl/">available on GitHub</a>.
+      </p>
+
+      <p>
+        <a href="http://russplaysguitar.github.com/UnderscoreCF/">Underscore.cfc</a>,
+        a Coldfusion port of many of the Underscore.js functions,
+        <a href="https://github.com/russplaysguitar/underscorecf">available on GitHub</a>.
       </p>
 
       <p>
@@ -1612,21 +1651,21 @@ _([1, 2, 3]).value();
       </p>
 
       <h2 id="changelog">Change Log</h2>
-      
+
       <p>
         <b class="header">1.3.3</b> &mdash; <small><i>April 10, 2012</i></small><br />
         <ul>
           <li>
-            Many improvements to <tt>_.template</tt>, which now provides the 
+            Many improvements to <tt>_.template</tt>, which now provides the
             <tt>source</tt> of the template function as a property, for potentially
             even more efficient pre-compilation on the server-side. You may now
-            also set the <tt>variable</tt> option when creating a template, 
-            which will cause your passed-in data to be made available under the 
+            also set the <tt>variable</tt> option when creating a template,
+            which will cause your passed-in data to be made available under the
             variable you named, instead of using a <tt>with</tt> statement &mdash;
             significantly improving the speed of rendering the template.
           </li>
           <li>
-            Added the <tt>pick</tt> function, which allows you to filter an 
+            Added the <tt>pick</tt> function, which allows you to filter an
             object literal with a whitelist of allowed property names.
           </li>
           <li>
@@ -1650,7 +1689,7 @@ _([1, 2, 3]).value();
           </li>
           <li>
             The <tt>debounce</tt> function now takes an <tt>immediate</tt>
-            parameter, which will cause the callback to fire on the leading 
+            parameter, which will cause the callback to fire on the leading
             instead of the trailing edge.
           </li>
         </ul>
@@ -1690,8 +1729,8 @@ _([1, 2, 3]).value();
         <b class="header">1.2.4</b> &mdash; <small><i>Jan. 4, 2012</i></small><br />
         <ul>
           <li>
-            You now can (and probably should, as it's simpler) 
-            write <tt>_.chain(list)</tt> 
+            You now can (and probably should, as it's simpler)
+            write <tt>_.chain(list)</tt>
             instead of <tt>_(list).chain()</tt>.
           </li>
           <li>

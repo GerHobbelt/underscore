@@ -14,14 +14,6 @@ $(document).ready(function() {
 
   });
 
-  test("utility: noConflict", function() {
-    var underscore = _.noConflict();
-    ok(underscore.isUndefined(_), "The '_' variable has been returned to its previous state.");
-    var intersection = underscore.intersect([-1, 0, 1, 2], [1, 2, 3, 4]);
-    equal(intersection.join(', '), '1, 2', 'but the intersection function still works');
-    window._ = underscore;
-  });
-
   test("utility: identity", function() {
     var moe = {name : 'moe'};
     equal(_.identity(moe), moe, 'moe is the same as his identity');
@@ -169,6 +161,17 @@ $(document).ready(function() {
     strictEqual(tmpl(), '<p>\u2028\u2028\u2029\u2029</p>');
   });
 
+  test('_.template syntax errors reveal source', function () {
+    var source = null;
+    try {
+      var tmpl = _.template('<% syntax error %>');
+    } catch (e) {
+      source = e.source;
+      ok(source, 'Exception has .source property');
+    }
+    ok(source, 'Exception was raised');
+  });
+
   test('result calls functions and returns primitives', function() {
     var obj = {w: '', x: 'x', y: function(){ return this.x; }};
     strictEqual(_.result(obj, 'w'), '');
@@ -181,15 +184,57 @@ $(document).ready(function() {
   test('_.templateSettings.variable', function() {
     var s = '<%=data.x%>';
     var data = {x: 'x'};
-    strictEqual(_.template(s, data, {variable: 'data'}), 'x')
+    strictEqual(_.template(s, data, {variable: 'data'}), 'x');
     _.templateSettings.variable = 'data';
-    strictEqual(_.template(s)(data), 'x')
+    strictEqual(_.template(s)(data), 'x');
   });
 
   test('#547 - _.templateSettings is unchanged by custom settings.', function() {
     ok(!_.templateSettings.variable);
     _.template('', {}, {variable: 'x'});
     ok(!_.templateSettings.variable);
+  });
+
+  test('#556 - undefined template variables.', function() {
+    var template = _.template('<%=x%>');
+    strictEqual(template({x: null}), '');
+    strictEqual(template({x: undefined}), '');
+
+    var templateEscaped = _.template('<%-x%>');
+    strictEqual(templateEscaped({x: null}), '');
+    strictEqual(templateEscaped({x: undefined}), '');
+
+    var templateWithProperty = _.template('<%=x.foo%>');
+    strictEqual(templateWithProperty({x: {} }), '');
+    strictEqual(templateWithProperty({x: {} }), '');
+
+    var templateWithPropertyEscaped = _.template('<%-x.foo%>');
+    strictEqual(templateWithPropertyEscaped({x: {} }), '');
+    strictEqual(templateWithPropertyEscaped({x: {} }), '');
+  });
+
+  test('interpolate evaluates code only once.', 2, function() {
+    var count = 0;
+    var template = _.template('<%= f() %>');
+    template({f: function(){ ok(!(count++)); }});
+
+    var countEscaped = 0;
+    var templateEscaped = _.template('<%- f() %>');
+    templateEscaped({f: function(){ ok(!(countEscaped++)); }});
+  });
+  
+  test("utility: _.format", function() {
+	equal(_.format(9000), "9,000");
+	equal(_.format(9000, 0), "9,000");
+	equal(_.format(90000, 2), "90,000.00");
+	equal(_.format(1000.754), "1,001");
+	equal(_.format(1000.754, 2), "1,000.75");
+	equal(_.format(1000.754, 0, ',', '.'), "1.001");
+	equal(_.format(1000.754, 2, ',', '.'), "1.000,75");
+	equal(_.format(1000000.754, 2, ',', '.'), "1.000.000,75");
+	equal(_.format(1000000000), "1,000,000,000");
+	equal(_.format("not number"), "");
+	equal(_.format(new Number(5000)), "5,000");
   });
 
 });

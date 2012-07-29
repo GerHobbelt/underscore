@@ -91,28 +91,6 @@ $(document).ready(function() {
 
     var result = (function(){ return _.uniq(arguments); })(1, 2, 1, 3, 1, 4);
     equal(result.join(', '), '1, 2, 3, 4', 'works on an arguments object');
-
-    var list = [];
-    list[2] = list[3] = null;
-    list[8] = 2;
-    list[10] = 2;
-    list[11] = 5;
-    list[14] = 5;
-    list[16] = 8;
-    list[19] = 8;
-    list[26] = list[29] = undefined;
-    list[33] = "hi";
-
-    var result = _.uniq(list, true);
-    if (0 in [undefined]) {
-      // According to the JScript ES 3 spec, section 2.1.26, JScript 5.x (IE <=
-      // 8) treats `undefined` elements in arrays as elisions.
-      deepEqual(result, [null, 2, 5, 8, undefined, "hi"], "Works with sorted sparse arrays");
-      equal(result.length, 6, "The resulting array should not be sparse");
-    } else {
-      deepEqual(result, [null, 2, 5, 8, "hi"], "Works with sorted sparse arrays where `undefined` elements are elided");
-      equal(result.length, 5, "The resulting array should not be sparse");
-    }
   });
 
   test("arrays: intersection", function() {
@@ -143,6 +121,12 @@ $(document).ready(function() {
     var names = ['moe', 'larry', 'curly'], ages = [30, 40, 50], leaders = [true];
     var stooges = _.zip(names, ages, leaders);
     equal(String(stooges), 'moe,30,true,larry,40,,curly,50,', 'zipped together arrays of different lengths');
+  });
+
+  test('arrays: zipObject', function() {
+    var result = _.zipObject(['moe', 'larry', 'curly'], [30, 40, 50]);
+    var shouldBe = {moe: 30, larry: 40, curly: 50};
+    ok(_.isEqual(result, shouldBe), 'two arrays zipped together into an object');
   });
 
   test("arrays: indexOf", function() {
@@ -185,6 +169,9 @@ $(document).ready(function() {
     equal(_.range(3, 10, 15).join(''), '3', 'range with three arguments a &amp; b &amp; c, c &gt; b-a, a &lt; b generates an array with a single element, equal to a');
     equal(_.range(12, 7, -2).join(' '), '12 10 8', 'range with three arguments a &amp; b &amp; c, a &gt; b, c &lt; 0 generates an array of elements a,a-c,a-2c and ends with the number not less than b');
     equal(_.range(0, -10, -1).join(' '), '0 -1 -2 -3 -4 -5 -6 -7 -8 -9', 'final example in the Python docs');
+    equal(_.range().join(''), '', 'range with empty start point generates an empty array');
+    raises(function() { _.range("2", 20); }, TypeError, 'range with bad start point of string throws an error');
+    raises(function() { _.range(null, 20); }, TypeError, 'range with bad start point of null throws an error');
   });
 
 });
