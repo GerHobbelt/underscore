@@ -579,12 +579,17 @@ _.sortBy([1, 2, 3, 4, 5, 6], function(num){ return Math.sin(num); });
 </pre>
 
       <p id="groupBy">
-        <b class="header">groupBy</b><code>_.groupBy(list, iterator)</code>
+        <b class="header">groupBy</b><code>_.groupBy(list, iterator, [selector])</code>
         <br />
         Splits a collection into sets, grouped by the result of running each
         value through <b>iterator</b>. If <b>iterator</b> is a string instead of
         a function, groups by the property named by <b>iterator</b> on each of
         the values.
+        <br />
+				An optional <b>selector</b> function can be specified which will be invoked
+				for each item in the collection. The return value of the <b>selector</b> is
+				fed to the iterator. The default <b>selector</b> is the
+				<a href="#identity"><tt>identity</tt></a> function.
       </p>
       <pre>
 _.groupBy([1.3, 2.1, 2.4], function(num){ return Math.floor(num); });
@@ -973,7 +978,7 @@ $(window).resize(lazyLayout);
       </p>
 
       <p>
-        This function is identical to <b><a href="#debounce">_.debounce()</a></b>, except
+        This function is identical to <a href="#debounce"><tt>debounce</tt></a>, except
 				<b>accumulatingDebounce</b> takes the arguments of each invocation and accumulates 
 				them in an array. When triggered, <b>function</b> is called with this accumulated
 				set of arguments as the first and only argument.
