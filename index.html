@@ -238,6 +238,7 @@
       <li>- <a href="#memoize">memoize</a></li>
       <li>- <a href="#delay">delay</a></li>
       <li>- <a href="#defer">defer</a></li>
+      <li>- <a href="#format">format</a></li>
       <li>- <a href="#throttle">throttle</a></li>
       <li>- <a href="#debounce">debounce</a></li>
       <li>- <a href="#accumulatingDebounce">accumulatingDebounce</a></li>
@@ -950,6 +951,24 @@ _.delay(log, 1000, 'logged later');
 _.defer(function(){ alert('deferred'); });
 // Returns from the function before the alert runs.
 </pre>
+
+
+      <p id="format">
+        <b class="header">format</b><code>_.format(number, [dec, [dsep, [tsep]]])</code>
+        <br />
+        Formats the <b>number</b> to a string, using the specified decimals <b>dec</b>,
+				where <b>dsep</b> is used as the decimal separator and <b>tsep</b> as
+				the thousands separator string.
+        <br />
+				The default for <b>dec</b> is 0 (zero), i.e. by default numbers are printed as if
+				they were integer values. The default for <b>dsep</b> is <code>"."</code>,
+				while the default for <b>tsep</b> is <code>","</code>.
+      </p>
+      <pre>
+_.format(90000, 2)  --&gt; "90,000.00"
+_.format(90000, 2, ",", " ")  --&gt; "90 000,00"
+</pre>
+
 
       <p id="throttle">
         <b class="header">throttle</b><code>_.throttle(function, wait)</code>
