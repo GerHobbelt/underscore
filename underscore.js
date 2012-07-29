@@ -889,6 +889,11 @@
     return obj === void 0;
   };
 
+  // Is a given variable equal to null or undefined?
+  _.isNullOrUndefined = function(obj) {
+    return _.isNull(obj) || _.isUndefined(obj);
+  };
+
   // Shortcut function for checking if an object has a given property directly
   // on itself (in other words, not on a prototype).
   _.has = function(obj, key) {
