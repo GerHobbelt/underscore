@@ -552,10 +552,14 @@
       stop = start || 0;
       start = 0;
     }
-    if(!_.isNumber(start)) throw new TypeError;
     
     step = arguments[2] || 1;
 
+    start = +start;
+    stop = +stop;
+    step = +step;
+    if(!_.isNumber(start) || !_.isNumber(stop) || !_.isNumber(step)) throw new TypeError;
+    
     var len = Math.max(Math.ceil((stop - start) / step), 0);
     var idx = 0;
     var range = new Array(len);
