@@ -1502,6 +1502,20 @@ _.template("<%= data.hasWith %>", {hasWith: 'no'}, {variable: 'data'});
   JST.project = <%= _.template(jstText).source %>;
 &lt;/script&gt;</pre>
 
+      <p>
+        When the template is rendered and an error occurs, an exception will be thrown.
+				The exception will include the <b>source</b> property.
+      </p>
+
+      <pre>&lt;script&gt;
+	try {
+		var tmpl = _.template('<% syntax error %>');
+	} catch (e) {
+		console.log('template {', e.source, '} failed to render');
+	}
+&lt;/script&gt;</pre>
+
+
 
       <h2 id="chaining">Chaining</h2>
 
