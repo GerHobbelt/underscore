@@ -530,10 +530,12 @@ _.any([null, 0, 'yes', false]);
         <br />
         Returns <i>true</i> if the <b>value</b> is present in the <b>list</b>, using
         <i>===</i> to test equality. Uses <b>indexOf</b> internally, if <b>list</b>
-        is an Array.
+        is an Array or String.
       </p>
       <pre>
 _.include([1, 2, 3], 3);
+=&gt; true
+_.include("1,2,3", "3");
 =&gt; true
 </pre>
 
@@ -965,8 +967,10 @@ _.defer(function(){ alert('deferred'); });
 				while the default for <b>tsep</b> is <code>","</code>.
       </p>
       <pre>
-_.format(90000, 2)  --&gt; "90,000.00"
-_.format(90000, 2, ",", " ")  --&gt; "90 000,00"
+_.format(90000, 2)  
+=&gt; "90,000.00"
+_.format(90000, 2, ",", " ")  
+=&gt; "90 000,00"
 </pre>
 
 
@@ -1035,7 +1039,7 @@ lazyLayout(1, 2, 3);
 // second invocation:
 lazyLayout(4, 5);
 ...
-// debounce triggers --&gt; calculateLayout([[1, 2, 3], [4, 5]])
+// debounce triggers =&gt; calculateLayout([[1, 2, 3], [4, 5]])
 </pre>
 
 
