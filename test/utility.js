@@ -161,6 +161,17 @@ $(document).ready(function() {
     strictEqual(tmpl(), '<p>\u2028\u2028\u2029\u2029</p>');
   });
 
+  test('_.template syntax errors reveal source', function () {
+    var source = null;
+    try {
+      var tmpl = _.template('<% syntax error %>');
+    } catch (e) {
+      source = e.source;
+      ok(source, 'Exception has .source property');
+    }
+    ok(source, 'Exception was raised');
+  });
+
   test('result calls functions and returns primitives', function() {
     var obj = {w: '', x: 'x', y: function(){ return this.x; }};
     strictEqual(_.result(obj, 'w'), '');

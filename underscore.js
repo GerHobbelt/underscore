@@ -1031,7 +1031,16 @@
       "print=function(){__p+=__j.call(arguments,'')};\n" +
       source + "return __p;\n";
 
-    var render = new Function(settings.variable || 'obj', '_', source);
+    try {
+      var render = new Function(settings.variable || 'obj', '_', source);
+    } catch (e) {
+      try {
+        e.source = source;
+      } catch (e2) {
+        // Avoid messing up the exception even if we can't add .source
+      }
+      throw e;
+    }
     if (data) return render(data, _);
     var template = function(data) {
       return render.call(this, data, _);
