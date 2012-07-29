@@ -239,6 +239,7 @@
       <li>- <a href="#defer">defer</a></li>
       <li>- <a href="#throttle">throttle</a></li>
       <li>- <a href="#debounce">debounce</a></li>
+      <li>- <a href="#accumulatingDebounce">accumulatingDebounce</a></li>
       <li>- <a href="#once">once</a></li>
       <li>- <a href="#after">after</a></li>
       <li>- <a href="#wrap">wrap</a></li>
@@ -960,6 +961,36 @@ $(window).scroll(throttled);
 var lazyLayout = _.debounce(calculateLayout, 300);
 $(window).resize(lazyLayout);
 </pre>
+
+
+      <p id="accumulatingDebounce">
+        <b class="header">accumulatingDebounce</b><code>_.accumulatingDebounce(function, wait, [immediate])</code>
+        <br />
+        Creates and returns a new debounced version of the passed function that
+        will postpone its execution until after
+        <b>wait</b> milliseconds have elapsed since the last time it
+        was invoked.
+      </p>
+
+      <p>
+        This function is identical to <b><a href="#debounce">_.debounce()</a></b>, except
+				<b>accumulatingDebounce</b> takes the arguments of each invocation and accumulates 
+				them in an array. When triggered, <b>function</b> is called with this accumulated
+				set of arguments as the first and only argument.
+      </p>
+
+      <pre>
+var lazyLayout = _.accumulatingDebounce(calculateLayout, 300);
+...
+// first invocation:
+lazyLayout(1, 2, 3);
+...
+// second invocation:
+lazyLayout(4, 5);
+...
+// debounce triggers --&gt; calculateLayout([[1, 2, 3], [4, 5]])
+</pre>
+
 
       <p id="once">
         <b class="header">once</b><code>_.once(function)</code>
