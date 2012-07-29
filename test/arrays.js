@@ -170,8 +170,10 @@ $(document).ready(function() {
     equal(_.range(12, 7, -2).join(' '), '12 10 8', 'range with three arguments a &amp; b &amp; c, a &gt; b, c &lt; 0 generates an array of elements a,a-c,a-2c and ends with the number not less than b');
     equal(_.range(0, -10, -1).join(' '), '0 -1 -2 -3 -4 -5 -6 -7 -8 -9', 'final example in the Python docs');
     equal(_.range().join(''), '', 'range with empty start point generates an empty array');
-    raises(function() { _.range("2", 20); }, TypeError, 'range with bad start point of string throws an error');
-    raises(function() { _.range(null, 20); }, TypeError, 'range with bad start point of null throws an error');
+    equal(_.range("4").join(' '), '0 1 2 3', 'string argument is converted to a number');
+    raises(function() { _.range("Z", 20); }, TypeError, 'range with bad start point of string throws an error');
+    raises(function() { _.range(undefined, 20); }, TypeError, 'range with bad start point of null throws an error');
+    raises(function() { _.range(Number.NaN, 20); }, TypeError, 'range with bad start point of NaN throws an error');
   });
 
 });
