@@ -187,6 +187,7 @@
     <ul class="toc_section">
       <li>- <a href="#each">each</a></li>
       <li>- <a href="#map">map</a></li>
+      <li>- <a href="#categorize">categorize</a></li>
       <li>- <a href="#reduce">reduce</a></li>
       <li>- <a href="#reduceRight">reduceRight</a></li>
       <li>- <a href="#find">find</a></li>
@@ -438,6 +439,25 @@ var list = [[0, 1], [2, 3], [4, 5]];
 var flat = _.reduceRight(list, function(a, b) { return a.concat(b); }, []);
 =&gt; [4, 5, 2, 3, 0, 1]
 </pre>
+
+      <p id="categorize">
+        <b class="header">categorize</b><code>_.categorize(list, categorizer, [receiver])</code>
+        <span class="alias">Alias: <b>collect</b></span>
+        <br />
+				Produces an object of arrays where the key is determined by the categorizing
+				callback. The callback is given the <tt>value</tt>, <tt>index</tt> and 
+				<tt>array</tt> references. Use this function to distribute the items in the
+				<b>list</b> to a set of arrays, selected by the key returned by the categorizer, 
+				in a single traversal through the list.
+        <br />
+				The optional <b>receiver</b> argument is the object to store the arrays in. 
+				Default is an empty object.
+      </p>
+      <pre>
+_.categorize([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], function(num){ return "K" + ((num % 5) % 3); }, {K1: [1001, 1002]});
+=&gt; {K0: [3, 5, 8, 10], K1: [1001, 1002, 1, 4, 6, 9], K2: [2, 7]}
+</pre>
+
 
       <p id="find">
         <b class="header">find</b><code>_.find(list, iterator, [context])</code>
