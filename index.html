@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+e<!DOCTYPE HTML>
 <html>
 <head>
   <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
@@ -226,6 +226,8 @@
       <li>- <a href="#zip">zip</a></li>
       <li>- <a href="#indexOf">indexOf</a></li>
       <li>- <a href="#lastIndexOf">lastIndexOf</a></li>
+      <li>- <a href="#startsWith">startsWith</a></li>
+      <li>- <a href="#endWith">endWith</a></li>
       <li>- <a href="#range">range</a></li>
     </ul>
 
@@ -836,6 +838,46 @@ _.indexOf([1, 2, 3], 2);
 =&gt; 1
 </pre>
 
+      <p id="startsWith">
+        <b class="header">startsWith</b><code>_.startsWith(array, prefix)</code>
+        <br />
+        Returns true when the <b>prefix</b> array matches the first few entries
+				of the <b>array</b>, false otherwise.
+        <br />
+				When <b>array</b> is a string, then this function checks
+				whether <b>prefix</b>, when used as a string, matches the first few 
+				characters in the <b>array</b> string.
+      </p>
+      <pre>
+_.startsWith([1, 2, 3, 1, 2, 3], [2]);
+=&gt; false
+_.startsWith([1, 2, 3, 1, 2, 3], [1, 2]);
+=&gt; true
+_.startsWith("foobar", "foo");
+=&gt; true
+</pre>
+
+
+      <p id="endsWith">
+        <b class="header">endsWith</b><code>_.endsWith(array, postfix)</code>
+        <br />
+        Returns true when the <b>postfix</b> array matches the last few entries
+				of the <b>array</b>, false otherwise.
+        <br />
+				When <b>array</b> is a string, then this function checks
+				whether <b>postfix</b>, when used as a string, matches the last few 
+				characters in the <b>array</b> string.
+      </p>
+      <pre>
+_.endsWith([1, 2, 3, 1, 2, 3], [2]);
+=&gt; false
+_.endsWith([1, 2, 3, 1, 2, 3], [2, 3]);
+=&gt; true
+_.startsWith("foobar", "obar");
+=&gt; true
+</pre>
+
+
       <p id="lastIndexOf">
         <b class="header">lastIndexOf</b><code>_.lastIndexOf(array, value)</code>
         <br />
@@ -847,6 +889,7 @@ _.indexOf([1, 2, 3], 2);
 _.lastIndexOf([1, 2, 3, 1, 2, 3], 2);
 =&gt; 4
 </pre>
+
 
       <p id="range">
         <b class="header">range</b><code>_.range([start], stop, [step])</code>
