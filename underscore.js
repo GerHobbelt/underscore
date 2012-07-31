@@ -558,7 +558,7 @@
     start = +start;
     stop = +stop;
     step = +step;
-    if(!_.isNumber(start) || !_.isNumber(stop) || !_.isNumber(step)) throw new TypeError;
+    if(!_.isNumber(start) || !_.isNumber(stop) || !_.isNumber(step)) throw new TypeError("_.range() expects integer start/stop/step arguments");
     
     var len = Math.max(Math.ceil((stop - start) / step), 0);
     var idx = 0;
