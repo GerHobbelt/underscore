@@ -15,17 +15,22 @@ $(document).ready(function() {
   });
 
   test("values", function() {
-    equal(_.values({one : 1, two : 2}).join(', '), '1, 2', 'can extract the values from an object');
+    equal(_.values({one: 1, two: 2}).join(', '), '1, 2', 'can extract the values from an object');
+    equal(_.values({one: 1, two: 2, length: 3}).join(', '), '1, 2, 3', '... even when one of them is "length"');
   });
 
   test("pairs", function() {
     deepEqual(_.pairs({one: 1, two: 2}), [['one', 1], ['two', 2]], 'can convert an object into pairs');
+    deepEqual(_.pairs({one: 1, two: 2, length: 3}), [['one', 1], ['two', 2], ['length', 3]], '... even when one of them is "length"');
   });
 
   test("invert", function() {
     var obj = {first: 'Moe', second: 'Larry', third: 'Curly'};
     equal(_.keys(_.invert(obj)).join(' '), 'Moe Larry Curly', 'can invert an object');
     ok(_.isEqual(_.invert(_.invert(obj)), obj), 'two inverts gets you back where you started');
+
+    var obj = {length: 3};
+    ok(_.invert(obj)['3'] == 'length', 'can invert an object with "length"')
   });
 
   test("functions", function() {
@@ -228,14 +233,6 @@ $(document).ready(function() {
     ok(_.isEqual(Array(3), Array(3)), "Sparse arrays of identical lengths are equal");
     ok(!_.isEqual(Array(3), Array(6)), "Sparse arrays of different lengths are not equal when both are empty");
 
-    // According to the Microsoft deviations spec, section 2.1.26, JScript 5.x treats `undefined`
-    // elements in arrays as elisions. Thus, sparse arrays and dense arrays containing `undefined`
-    // values are equivalent.
-    if (0 in [undefined]) {
-      ok(!_.isEqual(Array(3), [undefined, undefined, undefined]), "Sparse and dense arrays are not equal");
-      ok(!_.isEqual([undefined, undefined, undefined], Array(3)), "Commutative equality is implemented for sparse and dense arrays");
-    }
-
     // Simple objects.
     ok(_.isEqual({a: "Curly", b: 1, c: true}, {a: "Curly", b: 1, c: true}), "Objects containing identical primitives are equal");
     ok(_.isEqual({a: /Curly/g, b: new Date(2009, 11, 13)}, {a: /Curly/g, b: new Date(2009, 11, 13)}), "Objects containing equivalent members are equal");
@@ -293,6 +290,12 @@ $(document).ready(function() {
     b.push("Curly");
     ok(!_.isEqual(a, b), "Arrays containing circular references and different properties are not equal");
 
+    // More circular arrays #767.
+    a = ["everything is checked but", "this", "is not"];
+    a[1] = a;
+    b = ["everything is checked but", ["this", "array"], "is not"];
+    ok(!_.isEqual(a, b), "Comparison of circular references with non-circular references are not equal");
+
     // Circular Objects.
     a = {abc: null};
     b = {abc: null};
@@ -305,6 +308,12 @@ $(document).ready(function() {
     a.def = new Number(75);
     b.def = new Number(63);
     ok(!_.isEqual(a, b), "Objects containing circular references and different properties are not equal");
+
+    // More circular objects #767.
+    a = {everything: "is checked", but: "this", is: "not"};
+    a.but = a;
+    b = {everything: "is checked", but: {that:"object"}, is: "not"};
+    ok(!_.isEqual(a, b), "Comparison of circular references with non-circular object references are not equal");
 
     // Cyclic Structures.
     a = [{abc: null}];
@@ -339,57 +348,8 @@ $(document).ready(function() {
     ok(!_.isEqual(isEqualObj, {}), 'Objects that do not implement equivalent `isEqual` methods are not equal');
     ok(!_.isEqual({}, isEqualObj), 'Commutative equality is implemented for objects with different `isEqual` methods');
 
-    // Custom `isEqual` methods - comparing different types
-    LocalizedString = (function() {
-      function LocalizedString(id) { this.id = id; this.string = (this.id===10)? 'Bonjour': ''; }
-      LocalizedString.prototype.isEqual = function(that) {
-        if (_.isString(that)) return this.string == that;
-        else if (that instanceof LocalizedString) return this.id == that.id;
-        return false;
-      };
-      return LocalizedString;
-    })();
-    var localized_string1 = new LocalizedString(10), localized_string2 = new LocalizedString(10), localized_string3 = new LocalizedString(11);
-    ok(_.isEqual(localized_string1, localized_string2), 'comparing same typed instances with same ids');
-    ok(!_.isEqual(localized_string1, localized_string3), 'comparing same typed instances with different ids');
-    ok(_.isEqual(localized_string1, 'Bonjour'), 'comparing different typed instances with same values');
-    ok(_.isEqual('Bonjour', localized_string1), 'comparing different typed instances with same values');
-    ok(!_.isEqual('Bonjour', localized_string3), 'comparing two localized strings with different ids');
-    ok(!_.isEqual(localized_string1, 'Au revoir'), 'comparing different typed instances with different values');
-    ok(!_.isEqual('Au revoir', localized_string1), 'comparing different typed instances with different values');
-
-    // Custom `isEqual` methods - comparing with serialized data
-    Date.prototype.toJSON = function() {
-      return {
-        _type:'Date',
-        year:this.getUTCFullYear(),
-        month:this.getUTCMonth(),
-        day:this.getUTCDate(),
-        hours:this.getUTCHours(),
-        minutes:this.getUTCMinutes(),
-        seconds:this.getUTCSeconds()
-      };
-    };
-    Date.prototype.isEqual = function(that) {
-      var this_date_components = this.toJSON();
-      var that_date_components = (that instanceof Date) ? that.toJSON() : that;
-      delete this_date_components['_type']; delete that_date_components['_type'];
-      return _.isEqual(this_date_components, that_date_components);
-    };
-
-    var date = new Date();
-    var date_json = {
-      _type:'Date',
-      year:date.getUTCFullYear(),
-      month:date.getUTCMonth(),
-      day:date.getUTCDate(),
-      hours:date.getUTCHours(),
-      minutes:date.getUTCMinutes(),
-      seconds:date.getUTCSeconds()
-    };
-
-    ok(_.isEqual(date_json, date), 'serialized date matches date');
-    ok(_.isEqual(date, date_json), 'date matches serialized date');
+    // Objects from another frame.
+    ok(_.isEqual({}, iObject));
   });
 
   test("isEmpty", function() {
@@ -426,6 +386,7 @@ $(document).ready(function() {
       parent.iNull      = null;\
       parent.iBoolean   = new Boolean(false);\
       parent.iUndefined = undefined;\
+      parent.iObject     = {};\
     </script>"
   );
   iDoc.close();
@@ -538,6 +499,7 @@ $(document).ready(function() {
     ok(!_.isNaN(0), '0 is not NaN');
     ok(_.isNaN(NaN), 'but NaN is');
     ok(_.isNaN(iNaN), 'even from another frame');
+    ok(_.isNaN(new Number(NaN)), 'wrapped NaN is still NaN');
   });
 
   test("isNull", function() {

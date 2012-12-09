@@ -25,10 +25,6 @@ $(document).ready(function() {
     answer = null;
     _.each([1, 2, 3], function(num, index, arr){ if (_.include(arr, num)) answer = true; });
     ok(answer, 'can reference the original collection from inside the iterator');
-
-    answers = 0;
-    _.each(null, function(){ ++answers; });
-    equal(answers, 0, 'handles a null properly');
   });
 
   test('map', function() {
@@ -44,14 +40,16 @@ $(document).ready(function() {
     var doubled = _([1, 2, 3]).map(function(num){ return num * 2; });
     equal(doubled.join(', '), '2, 4, 6', 'OO-style doubled numbers');
 
+    if (document.querySelectorAll) {
+      var ids = _.map(document.querySelectorAll('#map-test *'), function(n){ return n.id; });
+      deepEqual(ids, ['id1', 'id2'], 'Can use collection methods on NodeLists.');
+    }
+
     var ids = _.map($('#map-test').children(), function(n){ return n.id; });
-    deepEqual(ids, ['id1', 'id2'], 'Can use collection methods on NodeLists.');
+    deepEqual(ids, ['id1', 'id2'], 'Can use collection methods on jQuery Array-likes.');
 
     var ids = _.map(document.images, function(n){ return n.id; });
     ok(ids[0] == 'chart_image', 'can use collection methods on HTMLCollections');
-
-    var ifnull = _.map(null, function(){});
-    ok(_.isArray(ifnull) && ifnull.length === 0, 'handles a null properly');
   });
 
   test('reduce', function() {
@@ -71,15 +69,6 @@ $(document).ready(function() {
     var sum = _.reduce([1, 2, 3], function(sum, num){ return sum + num; });
     equal(sum, 6, 'default initial value');
 
-    var ifnull;
-    try {
-      _.reduce(null, function(){});
-    } catch (ex) {
-      ifnull = ex;
-    }
-    ok(ifnull instanceof TypeError, 'handles a null (without inital value) properly');
-
-    ok(_.reduce(null, function(){}, 138) === 138, 'handles a null (with initial value) properly');
     equal(_.reduce([], function(){}, undefined), undefined, 'undefined can be passed as a special case');
     raises(function() { _.reduce([], function(){}); }, TypeError, 'throws an error for empty arrays with no initial value');
   });
@@ -94,18 +83,44 @@ $(document).ready(function() {
     var list = _.foldr(["foo", "bar", "baz"], function(memo, str){ return memo + str; });
     equal(list, 'bazbarfoo', 'default initial value');
 
-    var ifnull;
-    try {
-      _.reduceRight(null, function(){});
-    } catch (ex) {
-      ifnull = ex;
-    }
-    ok(ifnull instanceof TypeError, 'handles a null (without inital value) properly');
-
-    ok(_.reduceRight(null, function(){}, 138) === 138, 'handles a null (with initial value) properly');
+    var sum = _.reduceRight({a: 1, b: 2, c: 3}, function(sum, num){ return sum + num; });
+    equal(sum, 6, 'default initial value on object');
 
     equal(_.reduceRight([], function(){}, undefined), undefined, 'undefined can be passed as a special case');
     raises(function() { _.reduceRight([], function(){}); }, TypeError, 'throws an error for empty arrays with no initial value');
+
+    // Assert that the correct arguments are being passed.
+
+    var args,
+        memo = {},
+        object = {a: 1, b: 2},
+        lastKey = _.keys(object).pop();
+
+    var expected = lastKey == 'a'
+      ? [memo, 1, 'a', object]
+      : [memo, 2, 'b', object];
+
+    _.reduceRight(object, function() {
+      args || (args = _.toArray(arguments));
+    }, memo);
+
+    deepEqual(args, expected);
+
+    // And again, with numeric keys.
+
+    object = {'2': 'a', '1': 'b'};
+    lastKey = _.keys(object).pop();
+    args = null;
+
+    expected = lastKey == '2'
+      ? [memo, 'a', '2', object]
+      : [memo, 'b', '1', object];
+
+    _.reduceRight(object, function() {
+      args || (args = _.toArray(arguments));
+    }, memo);
+
+    deepEqual(args, expected);
   });
 
   test('find', function() {
@@ -238,6 +253,16 @@ $(document).ready(function() {
     equal(_.pluck(people, 'name').join(', '), 'moe, curly', 'pulls names out of objects');
   });
 
+  test('where', function() {
+    var list = [{a: 1, b: 2}, {a: 2, b: 2}, {a: 1, b: 3}, {a: 1, b: 4}];
+    var result = _.where(list, {a: 1});
+    equal(result.length, 3);
+    equal(result[result.length - 1].b, 4);
+    result = _.where(list, {b: 2});
+    equal(result.length, 2);
+    equal(result[0].a, 1);
+  });
+
   test('max', function() {
     equal(3, _.max([1, 2, 3]), 'can perform a regular Math.max');
 
@@ -277,6 +302,29 @@ $(document).ready(function() {
     var list = ["one", "two", "three", "four", "five"];
     var sorted = _.sortBy(list, 'length');
     equal(sorted.join(' '), 'one two four five three', 'sorted by length');
+
+    function Pair(x, y) {
+      this.x = x;
+      this.y = y;
+    }
+
+    var collection = [
+      new Pair(1, 1), new Pair(1, 2),
+      new Pair(1, 3), new Pair(1, 4),
+      new Pair(1, 5), new Pair(1, 6),
+      new Pair(2, 1), new Pair(2, 2),
+      new Pair(2, 3), new Pair(2, 4),
+      new Pair(2, 5), new Pair(2, 6),
+      new Pair(undefined, 1), new Pair(undefined, 2),
+      new Pair(undefined, 3), new Pair(undefined, 4),
+      new Pair(undefined, 5), new Pair(undefined, 6)
+    ];
+
+    var actual = _.sortBy(collection, function(pair) {
+      return pair.x;
+    });
+
+    deepEqual(actual, collection, 'sortBy should be stable');
   });
 
   test('groupBy', function() {
@@ -289,6 +337,18 @@ $(document).ready(function() {
     equal(grouped['3'].join(' '), 'one two six ten');
     equal(grouped['4'].join(' '), 'four five nine');
     equal(grouped['5'].join(' '), 'three seven eight');
+
+    var context = {};
+    _.groupBy([{}], function(){ ok(this === context); }, context);
+
+    grouped = _.groupBy([4.2, 6.1, 6.4], function(num) {
+      return Math.floor(num) > 4 ? 'hasOwnProperty' : 'constructor';
+    });
+    equal(grouped.constructor.length, 1);
+    equal(grouped.hasOwnProperty.length, 2);
+
+    var array = [{}];
+    _.groupBy(array, function(value, index, obj){ ok(obj === array); });
   });
 
   test('groupBy with selector', function() {
@@ -318,6 +378,18 @@ $(document).ready(function() {
     equal(grouped['3'], 4);
     equal(grouped['4'], 3);
     equal(grouped['5'], 3);
+
+    var context = {};
+    _.countBy([{}], function(){ ok(this === context); }, context);
+
+    grouped = _.countBy([4.2, 6.1, 6.4], function(num) {
+      return Math.floor(num) > 4 ? 'hasOwnProperty' : 'constructor';
+    });
+    equal(grouped.constructor, 1);
+    equal(grouped.hasOwnProperty, 2);
+
+    var array = [{}];
+    _.countBy(array, function(value, index, obj){ ok(obj === array); });
   });
 
   test('sortedIndex', function() {
@@ -327,6 +399,15 @@ $(document).ready(function() {
 
     var indexFor30 = _.sortedIndex(numbers, 30);
     equal(indexFor30, 2, '30 should be inserted at index 2');
+
+    var objects = [{x: 10}, {x: 20}, {x: 30}, {x: 40}];
+    var iterator = function(obj){ return obj.x; };
+    strictEqual(_.sortedIndex(objects, {x: 25}, iterator), 2);
+    strictEqual(_.sortedIndex(objects, {x: 35}, 'x'), 3);
+
+    var context = {1: 2, 2: 3, 3: 4};
+    iterator = function(obj){ return this[obj]; };
+    strictEqual(_.sortedIndex([1, 3], 2, iterator, context), 1);
   });
 
   test('shuffle', function() {
@@ -345,14 +426,6 @@ $(document).ready(function() {
 
     var numbers = _.toArray({one : 1, two : 2, three : 3});
     equal(numbers.join(', '), '1, 2, 3', 'object flattened into array');
-
-    var objectWithToArrayFunction = {toArray: function() {
-        return [1, 2, 3];
-    }};
-    equal(_.toArray(objectWithToArrayFunction).join(', '), '1, 2, 3', 'toArray method used if present');
-
-    var objectWithToArrayValue = {toArray: 1};
-    equal(_.toArray(objectWithToArrayValue).join(', '), '1', 'toArray property ignored if not a function');
   });
 
   test('size', function() {
