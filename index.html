@@ -259,6 +259,7 @@ e<!DOCTYPE HTML>
       <li>- <a href="#object-functions">functions</a></li>
       <li>- <a href="#extend">extend</a></li>
       <li>- <a href="#pick">pick</a></li>
+      <li>- <a href="#omit">omit</a></li>
       <li>- <a href="#defaults">defaults</a></li>
       <li>- <a href="#clone">clone</a></li>
       <li>- <a href="#tap">tap</a></li>
@@ -342,7 +343,7 @@ e<!DOCTYPE HTML>
     </p>
 
     <p>
-      A complete <a href="test/test.html">Test &amp; Benchmark Suite</a>
+      A complete <a href="test/">Test &amp; Benchmark Suite</a>
       is included for your perusal.
     </p>
 
@@ -530,9 +531,8 @@ _.any([null, 0, 'yes', false]);
         <b class="header">include</b><code>_.include(list, value)</code>
         <span class="alias">Alias: <b>contains</b></span>
         <br />
-        Returns <i>true</i> if the <b>value</b> is present in the <b>list</b>, using
-        <i>===</i> to test equality. Uses <b>indexOf</b> internally, if <b>list</b>
-        is an Array or String.
+        Returns <i>true</i> if the <b>value</b> is present in the <b>list</b>.
+        Uses <b>indexOf</b> internally, if <b>list</b> is an Array or String.
       </p>
       <pre>
 _.include([1, 2, 3], 3);
@@ -680,7 +680,7 @@ _.size({one : 1, two : 2, three : 3});
 
       <p id="first">
         <b class="header">first</b><code>_.first(array, [n])</code>
-        <span class="alias">Alias: <b>head</b></span>
+        <span class="alias">Alias: <b>head</b>, <b>take</b></span>
         <br />
         Returns the first element of an <b>array</b>. Passing <b>n</b> will
         return the first <b>n</b> elements of the array.
@@ -715,7 +715,7 @@ _.last([5, 4, 3, 2, 1]);
 
       <p id="rest">
         <b class="header">rest</b><code>_.rest(array, [index])</code>
-        <span class="alias">Alias: <b>tail</b></span>
+        <span class="alias">Alias: <b>tail, drop</b></span>
         <br />
         Returns the <b>rest</b> of the elements in an array. Pass an <b>index</b>
         to return the values of the array from that index onward.
@@ -755,7 +755,7 @@ _.flatten([1, [2], [3, [[4]]]], true);
         <b class="header">without</b><code>_.without(array, [*values])</code>
         <br />
         Returns a copy of the <b>array</b> with all instances of the <b>values</b>
-        removed. <i>===</i> is used for the equality test.
+        removed.
       </p>
       <pre>
 _.without([1, 2, 1, 0, 3, 1, 4], 0, 1);
@@ -1208,6 +1208,17 @@ _.pick({name : 'moe', age: 50, userid : 'moe1'}, 'name', 'age');
 =&gt; {name : 'moe', age : 50}
 </pre>
 
+      <p id="omit">
+        <b class="header">omit</b><code>_.omit(object, *keys)</code>
+        <br />
+        Return a copy of the <b>object</b>, filtered to omit the blacklisted
+        <b>keys</b> (or array of keys).
+      </p>
+      <pre>
+_.omit({name : 'moe', age : 50, userid : 'moe1'}, 'userid');
+=&gt; {name : 'moe', age : 50}
+</pre>
+
       <p id="defaults">
         <b class="header">defaults</b><code>_.defaults(object, *defaults)</code>
         <br />
@@ -1487,11 +1498,10 @@ moe === _.identity(moe);
       <p id="times">
         <b class="header">times</b><code>_.times(n, iterator, [context])</code>
         <br />
-        Invokes the given iterator function <b>n</b> times, each time passing
-        in a number from <i>0</i> to <i><b>n</b> - 1</i> as the first argument.
+        Invokes the given iterator function <b>n</b> times. Each invocation of <b>iterator</b> is called with an <tt>index</tt> argument.
       </p>
       <pre>
-_(3).times(function(){ genie.grantWish(); });</pre>
+_(3).times(function(n){ genie.grantWishNumber(n); });</pre>
 
       <p id="mixin">
         <b class="header">mixin</b><code>_.mixin(object)</code>
@@ -1746,8 +1756,14 @@ _([1, 2, 3]).value();
         <a href="http://underscorem.org">Underscore.m</a>, an Objective-C port
         of many of the Underscore.js functions, using a syntax that encourages
         chaining.
-        The <a href="https://github.com/robb/Underscore.m">source</a> is
-        available on GitHub.
+        (<a href="https://github.com/robb/Underscore.m">source</a>)
+      </p>
+
+      <p>
+        <a href="http://kmalakoff.github.com/_.m/">_.m</a>, an alternative
+        Objective-C port that tries to stick a little closer to the original
+        Underscore.js API.
+        (<a href="https://github.com/kmalakoff/_.m">source</a>)
       </p>
 
       <p>
@@ -1772,8 +1788,8 @@ _([1, 2, 3]).value();
 
       <p>
         <a href="http://russplaysguitar.github.com/UnderscoreCF/">Underscore.cfc</a>,
-        a Coldfusion port of many of the Underscore.js functions,
-        <a href="https://github.com/russplaysguitar/underscorecf">available on GitHub</a>.
+        a Coldfusion port of many of the Underscore.js functions.
+        (<a href="https://github.com/russplaysguitar/underscorecf">source</a>)
       </p>
 
       <p>
@@ -1799,7 +1815,7 @@ _([1, 2, 3]).value();
       </p>
 
       <p>
-        Michael Aufreiter's <a href="http://substance.io/#michael/data-js">Data.js</a>,
+        Michael Aufreiter's <a href="http://github.com/michael/data">Data.js</a>,
         a data manipulation + persistence library for JavaScript.
       </p>
 
