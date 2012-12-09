@@ -171,6 +171,14 @@ $(document).ready(function() {
   test('reject', function() {
     var odds = _.reject([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; });
     equal(odds.join(', '), '1, 3, 5', 'rejected each even number');
+
+    var context = "obj";
+
+    var evens = _.reject([1, 2, 3, 4, 5, 6], function(num){
+      equal(context, "obj");
+      return num % 2 != 0;
+    }, context);
+    equal(evens.join(', '), '2, 4, 6', 'rejected each odd number');
   });
 
   test('all', function() {
@@ -297,6 +305,7 @@ $(document).ready(function() {
 
     equal(-Infinity, _.max({}), 'Maximum value of an empty object');
     equal(-Infinity, _.max([]), 'Maximum value of an empty array');
+    equal(_.max({'a': 'a'}), -Infinity, 'Maximum value of a non-numeric collection');
 
     equal(299999, _.max(_.range(1,300000)), "Maximum value of a too-big array");
   });
@@ -309,6 +318,7 @@ $(document).ready(function() {
 
     equal(Infinity, _.min({}), 'Minimum value of an empty object');
     equal(Infinity, _.min([]), 'Minimum value of an empty array');
+    equal(_.min({'a': 'a'}), Infinity, 'Minimum value of a non-numeric collection');
 
     var now = new Date(9999999999);
     var then = new Date(0);
@@ -375,6 +385,11 @@ $(document).ready(function() {
 
     var array = [{}];
     _.groupBy(array, function(value, index, obj){ ok(obj === array); });
+
+    var array = [1, 2, 1, 2, 3];
+    var grouped = _.groupBy(array);
+    equal(grouped['1'].length, 2);
+    equal(grouped['3'].length, 1);
   });
 
   test('groupBy with selector', function() {
@@ -416,6 +431,11 @@ $(document).ready(function() {
 
     var array = [{}];
     _.countBy(array, function(value, index, obj){ ok(obj === array); });
+
+    var array = [1, 2, 1, 2, 3];
+    var grouped = _.countBy(array);
+    equal(grouped['1'], 2);
+    equal(grouped['3'], 1);
   });
 
   test('sortedIndex', function() {
@@ -452,6 +472,13 @@ $(document).ready(function() {
 
     var numbers = _.toArray({one : 1, two : 2, three : 3});
     equal(numbers.join(', '), '1, 2, 3', 'object flattened into array');
+
+    // test in IE < 9
+    try {
+      var actual = _.toArray(document.childNodes);
+    } catch(ex) { }
+
+    ok(_.isArray(actual), 'should not throw converting a node list');
   });
 
   test('size', function() {
@@ -465,6 +492,8 @@ $(document).ready(function() {
     equal(func(1, 2, 3, 4), 4, 'can test the size of the arguments object');
 
     equal(_.size('hello'), 5, 'can compute the size of a string');
+
+    equal(_.size(null), 0, 'handles nulls');
   });
 
   test("collections: categorize", function() {
