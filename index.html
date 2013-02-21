@@ -196,6 +196,7 @@
     <ul class="toc_section">
       <li>- <a href="#each">each</a></li>
       <li>- <a href="#map">map</a></li>
+      <li>- <a href="#categorize">categorize</a></li>
       <li>- <a href="#reduce">reduce</a></li>
       <li>- <a href="#reduceRight">reduceRight</a></li>
       <li>- <a href="#find">find</a></li>
@@ -237,6 +238,8 @@
       <li>- <a href="#object">object</a></li>
       <li>- <a href="#indexOf">indexOf</a></li>
       <li>- <a href="#lastIndexOf">lastIndexOf</a></li>
+      <li>- <a href="#startsWith">startsWith</a></li>
+      <li>- <a href="#endWith">endWith</a></li>
       <li>- <a href="#sortedIndex">sortedIndex</a></li>
       <li>- <a href="#range">range</a></li>
     </ul>
@@ -251,8 +254,10 @@
       <li>- <a href="#memoize">memoize</a></li>
       <li>- <a href="#delay">delay</a></li>
       <li>- <a href="#defer">defer</a></li>
+      <li>- <a href="#format">format</a></li>
       <li>- <a href="#throttle">throttle</a></li>
       <li>- <a href="#debounce">debounce</a></li>
+      <li>- <a href="#accumulatingDebounce">accumulatingDebounce</a></li>
       <li>- <a href="#once">once</a></li>
       <li>- <a href="#after">after</a></li>
       <li>- <a href="#wrap">wrap</a></li>
@@ -291,6 +296,7 @@
       <li>- <a href="#isNaN">isNaN</a></li>
       <li>- <a href="#isNull">isNull</a></li>
       <li>- <a href="#isUndefined">isUndefined</a></li>
+      <li>- <a href="#isNullOrUndefined">isNullOrUndefined</a></li>
     </ul>
 
     <a class="toc_title" href="#utility">
@@ -471,6 +477,25 @@ var list = [[0, 1], [2, 3], [4, 5]];
 var flat = _.reduceRight(list, function(a, b) { return a.concat(b); }, []);
 =&gt; [4, 5, 2, 3, 0, 1]
 </pre>
+
+      <p id="categorize">
+        <b class="header">categorize</b><code>_.categorize(list, categorizer, [receiver])</code>
+        <span class="alias">Alias: <b>collect</b></span>
+        <br />
+				Produces an object of arrays where the key is determined by the categorizing
+				callback. The callback is given the <tt>value</tt>, <tt>index</tt> and 
+				<tt>array</tt> references. Use this function to distribute the items in the
+				<b>list</b> to a set of arrays, selected by the key returned by the categorizer, 
+				in a single traversal through the list.
+        <br />
+				The optional <b>receiver</b> argument is the object to store the arrays in. 
+				Default is an empty object.
+      </p>
+      <pre>
+_.categorize([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], function(num){ return "K" + ((num % 5) % 3); }, {K1: [1001, 1002]});
+=&gt; {K0: [3, 5, 8, 10], K1: [1001, 1002, 1, 4, 6, 9], K2: [2, 7]}
+</pre>
+
 
       <p id="find">
         <b class="header">find</b><code>_.find(list, iterator, [context])</code>
@@ -884,6 +909,46 @@ _.indexOf([1, 2, 3], 2);
 =&gt; 1
 </pre>
 
+      <p id="startsWith">
+        <b class="header">startsWith</b><code>_.startsWith(array, prefix)</code>
+        <br />
+        Returns true when the <b>prefix</b> array matches the first few entries
+				of the <b>array</b>, false otherwise.
+        <br />
+				When <b>array</b> is a string, then this function checks
+				whether <b>prefix</b>, when used as a string, matches the first few 
+				characters in the <b>array</b> string.
+      </p>
+      <pre>
+_.startsWith([1, 2, 3, 1, 2, 3], [2]);
+=&gt; false
+_.startsWith([1, 2, 3, 1, 2, 3], [1, 2]);
+=&gt; true
+_.startsWith("foobar", "foo");
+=&gt; true
+</pre>
+
+
+      <p id="endsWith">
+        <b class="header">endsWith</b><code>_.endsWith(array, postfix)</code>
+        <br />
+        Returns true when the <b>postfix</b> array matches the last few entries
+				of the <b>array</b>, false otherwise.
+        <br />
+				When <b>array</b> is a string, then this function checks
+				whether <b>postfix</b>, when used as a string, matches the last few 
+				characters in the <b>array</b> string.
+      </p>
+      <pre>
+_.endsWith([1, 2, 3, 1, 2, 3], [2]);
+=&gt; false
+_.endsWith([1, 2, 3, 1, 2, 3], [2, 3]);
+=&gt; true
+_.startsWith("foobar", "obar");
+=&gt; true
+</pre>
+
+
       <p id="lastIndexOf">
         <b class="header">lastIndexOf</b><code>_.lastIndexOf(array, value, [fromIndex])</code>
         <br />
@@ -910,6 +975,7 @@ _.sortedIndex([10, 20, 30, 40, 50], 35);
 =&gt; 3
 </pre>
 
+
       <p id="range">
         <b class="header">range</b><code>_.range([start], stop, [step])</code>
         <br />
@@ -918,6 +984,9 @@ _.sortedIndex([10, 20, 30, 40, 50], 35);
         to <i>0</i>; <b>step</b> defaults to <i>1</i>. Returns a list of integers
         from <b>start</b> to <b>stop</b>, incremented (or decremented) by <b>step</b>,
         exclusive.
+        <br />
+				When any of the <b>start</b>, <b>stop</b> or <b>step</b> arguments cannot
+				be converted to a number, a <tt>TypeError</tt> exception will be thrown.
       </p>
       <pre>
 _.range(10);
@@ -1027,6 +1096,26 @@ _.defer(function(){ alert('deferred'); });
 // Returns from the function before the alert runs.
 </pre>
 
+
+      <p id="format">
+        <b class="header">format</b><code>_.format(number, [dec, [dsep, [tsep]]])</code>
+        <br />
+        Formats the <b>number</b> to a string, using the specified decimals <b>dec</b>,
+				where <b>dsep</b> is used as the decimal separator and <b>tsep</b> as
+				the thousands separator string.
+        <br />
+				The default for <b>dec</b> is 0 (zero), i.e. by default numbers are printed as if
+				they were integer values. The default for <b>dsep</b> is <code>"."</code>,
+				while the default for <b>tsep</b> is <code>","</code>.
+      </p>
+      <pre>
+_.format(90000, 2)  
+=&gt; "90,000.00"
+_.format(90000, 2, ",", " ")  
+=&gt; "90 000,00"
+</pre>
+
+
       <p id="throttle">
         <b class="header">throttle</b><code>_.throttle(function, wait)</code>
         <br />
@@ -1065,6 +1154,36 @@ $(window).scroll(throttled);
 var lazyLayout = _.debounce(calculateLayout, 300);
 $(window).resize(lazyLayout);
 </pre>
+
+
+      <p id="accumulatingDebounce">
+        <b class="header">accumulatingDebounce</b><code>_.accumulatingDebounce(function, wait, [immediate])</code>
+        <br />
+        Creates and returns a new debounced version of the passed function that
+        will postpone its execution until after
+        <b>wait</b> milliseconds have elapsed since the last time it
+        was invoked.
+      </p>
+
+      <p>
+        This function is identical to <a href="#debounce"><tt>debounce</tt></a>, except
+				<b>accumulatingDebounce</b> takes the arguments of each invocation and accumulates 
+				them in an array. When triggered, <b>function</b> is called with this accumulated
+				set of arguments as the first and only argument.
+      </p>
+
+      <pre>
+var lazyLayout = _.accumulatingDebounce(calculateLayout, 300);
+...
+// first invocation:
+lazyLayout(1, 2, 3);
+...
+// second invocation:
+lazyLayout(4, 5);
+...
+// debounce triggers =&gt; calculateLayout([[1, 2, 3], [4, 5]])
+</pre>
+
 
       <p id="once">
         <b class="header">once</b><code>_.once(function)</code>
@@ -1459,6 +1578,20 @@ _.isUndefined(window.missingVariable);
 =&gt; true
 </pre>
 
+      <p id="isNullOrUndefined">
+        <b class="header">isNullOrUndefined</b><code>_.isNullOrUndefined(object)</code>
+        <br />
+        Returns <i>true</i> if the value of <b>object</b> is <i>null</i> or <i>undefined</i>.
+      </p>
+      <pre>
+_.isNullOrUndefined(null);
+=&gt; true
+_.isNullOrUndefined(undefined);
+=&gt; true
+_.isNullOrUndefined(42);
+=&gt; false
+</pre>
+
       <h2 id="utility">Utility Functions</h2>
 
       <p id="noConflict">
@@ -1649,6 +1782,20 @@ _.template("Using 'with': <%= data.answer %>", {answer: 'no'}, {variable: 'data'
       <pre>&lt;script&gt;
   JST.project = <%= _.template(jstText).source %>;
 &lt;/script&gt;</pre>
+
+      <p>
+        When the template is rendered and an error occurs, an exception will be thrown.
+				The exception will include the <b>source</b> property.
+      </p>
+
+      <pre>&lt;script&gt;
+	try {
+		var tmpl = _.template('<% syntax error %>');
+	} catch (e) {
+		console.log('template {', e.source, '} failed to render');
+	}
+&lt;/script&gt;</pre>
+
 
 
       <h2 id="chaining">Chaining</h2>
