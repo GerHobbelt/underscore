@@ -536,6 +536,14 @@ $(document).ready(function() {
     ok(_.isUndefined(iUndefined), 'even from another frame');
   });
 
+  test("objects: isNullOrUndefined", function() {
+    ok(!_.isNullOrUndefined(NaN), 'NaN is not null or undefined');
+    ok(!_.isNullOrUndefined(1), '1 is not null or undefined');
+    ok(!_.isNullOrUndefined(false), 'false is not null or undefined');
+    ok(_.isNullOrUndefined(undefined), 'undefined is undefined');
+    ok(_.isNullOrUndefined(null), 'null is null');
+  });
+
   if (window.ActiveXObject) {
     test("IE host objects", function() {
       var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");

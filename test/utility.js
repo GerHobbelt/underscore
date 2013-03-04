@@ -201,6 +201,17 @@ $(document).ready(function() {
     strictEqual(tmpl(), '<p>\u2028\u2028\u2029\u2029</p>');
   });
 
+  test('_.template syntax errors reveal source', function () {
+    var source = null;
+    try {
+      var tmpl = _.template('<% syntax error %>');
+    } catch (e) {
+      source = e.source;
+      ok(source, 'Exception has .source property');
+    }
+    ok(source, 'Exception was raised');
+  });
+
   test('result calls functions and returns primitives', function() {
     var obj = {w: '', x: 'x', y: function(){ return this.x; }};
     strictEqual(_.result(obj, 'w'), '');
@@ -250,6 +261,20 @@ $(document).ready(function() {
     var countEscaped = 0;
     var templateEscaped = _.template('<%- f() %>');
     templateEscaped({f: function(){ ok(!(countEscaped++)); }});
+  });
+  
+  test("utility: _.format", function() {
+	equal(_.format(9000), "9,000");
+	equal(_.format(9000, 0), "9,000");
+	equal(_.format(90000, 2), "90,000.00");
+	equal(_.format(1000.754), "1,001");
+	equal(_.format(1000.754, 2), "1,000.75");
+	equal(_.format(1000.754, 0, ',', '.'), "1.001");
+	equal(_.format(1000.754, 2, ',', '.'), "1.000,75");
+	equal(_.format(1000000.754, 2, ',', '.'), "1.000.000,75");
+	equal(_.format(1000000000), "1,000,000,000");
+	equal(_.format("not number"), "");
+	equal(_.format(new Number(5000)), "5,000");
   });
 
   test('#746 - _.template settings are not modified.', 1, function() {

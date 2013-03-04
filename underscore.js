@@ -221,6 +221,38 @@
     });
   };
 
+  // Determine if the array or string `obj` starts with `prefix`
+  // (either the string is prefixed, or the arrays have equal elements
+  // for the beginning).
+  _.startsWith = function(obj, prefix) {
+    if (_.isString(obj)) return obj.indexOf(prefix) == 0;
+    if (!_.isArray(obj) || (!_.isArray(prefix))) return false;
+    if (obj.length < prefix.length) return false;
+    for (var i=0; i < obj.length && i < prefix.length; i++) {
+      if (obj[i] !== prefix[i]) return false;
+    }
+    return true;
+  };
+
+  // Determine if the array or string `obj` ends with `tail` (either
+  // the string ends with that other string, or the arrays have equal
+  // elements at the end).
+  _.endsWith = function(obj, tail) {
+    if (_.isString(obj)) {
+      tail = tail + '';
+      var index = obj.lastIndexOf(tail);
+      return index >= 0 && index === obj.length - tail.length;
+    }
+    if (!_.isArray(obj) || (!_.isArray(tail))) return false;
+    var objLength = obj.length,
+        tailLength = tail.length;
+    if (objLength < tailLength) return false;
+    for (var i=0; i < tailLength; i++) {
+      if (obj[objLength - 1 - i] !== tail[tailLength - 1 - i]) return false;
+    }
+    return true;
+  };
+
   // Invoke a method (with arguments) on every item in a collection.
   _.invoke = function(obj, method) {
     var args = slice.call(arguments, 2);
@@ -375,6 +407,21 @@
   _.size = function(obj) {
     if (obj == null) return 0;
     return (obj.length === +obj.length) ? obj.length : _.keys(obj).length;
+  };
+
+  // Create an object of arrays where the key is determined by the categorizing
+  // callback. The callback is given the ``value``, ``index``, and ``array`` reference.
+  // May also provide an optional ``baseObject`` to insert the sub-arrays.
+  _.categorize = function(array, categorizer, baseObject) {
+    return _.reduce(array, function(object, value, index, array) {
+      var key = categorizer(value, index, array);
+      if(object[key] instanceof Array) {
+        object[key].push(value);
+      } else {
+        object[key] = [value];
+      }
+      return object;
+    }, baseObject || {});
   };
 
   // Array Functions
@@ -557,8 +604,14 @@
       stop = start || 0;
       start = 0;
     }
+    
     step = arguments[2] || 1;
 
+    start = +start;
+    stop = +stop;
+    step = +step;
+    if(!_.isNumber(start) || !_.isNumber(stop) || !_.isNumber(step)) throw new TypeError("_.range() expects integer start/stop/step arguments");
+    
     var len = Math.max(Math.ceil((stop - start) / step), 0);
     var idx = 0;
     var range = new Array(len);
@@ -683,6 +736,33 @@
       return result;
     };
   };
+  
+  // Returns a function, that, as long as it continues to be invoked, will not
+  // be triggered. The function will be called after it stops being called for
+  // N milliseconds. If `immediate` is passed, trigger the function on the
+  // leading edge, instead of the trailing.
+  // The called function will receive all arguments as a list.
+  _.accumulatingDebounce = function(func, wait, immediate) {
+    var timeout, accumulator = [];
+    return function() {
+      var context = this, args = arguments;
+      accumulator.push(args);
+      var later = function() {
+        timeout = null;
+        if (!immediate) {
+          func.call(context, accumulator);
+          accumulator = [];
+        }
+      };
+      if (immediate && !timeout) {
+        func.call(context, accumulator);
+        accumulator = [];
+      }
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  };
+
 
   // Returns a function that will be executed at most one time, no matter how
   // often you call it. Useful for lazy initialization.
@@ -1000,6 +1080,11 @@
     return obj === void 0;
   };
 
+  // Is a given variable equal to null or undefined?
+  _.isNullOrUndefined = function(obj) {
+    return _.isNull(obj) || _.isUndefined(obj);
+  };
+
   // Shortcut function for checking if an object has a given property directly
   // on itself (in other words, not on a prototype).
   _.has = function(obj, key) {
@@ -1085,6 +1170,24 @@
       };
     });
   };
+  
+  _.format = function(number, dec, dsep, tsep) {
+	if (isNaN(number)) return "";
+	number = number.toFixed(dec || 0);	
+	var pindex = number.indexOf('.'), fnums, decimals, parts = [];
+	if (pindex > -1) {
+		fnums = number.substring(0, pindex).split('');
+		decimals = (dsep || '.') + number.substr(pindex+1);
+	}
+	else {
+		fnums = number.split('');
+		decimals = '';
+	}
+	do {
+		parts.unshift(fnums.splice(-3, 3).join(''));
+	} while (fnums.length);
+	return parts.join(tsep || ',') + decimals;
+  };
 
   // Generate a unique integer id (unique within the entire client session).
   // Useful for temporary DOM ids.
@@ -1166,7 +1269,11 @@
     try {
       render = new Function(settings.variable || 'obj', '_', source);
     } catch (e) {
-      e.source = source;
+      try {
+        e.source = source;
+      } catch (e2) {
+        // Avoid messing up the exception even if we can't add .source
+      }
       throw e;
     }
 

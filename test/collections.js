@@ -214,6 +214,43 @@ $(document).ready(function() {
     ok(!_.include([1,3,9], 2), 'two is not in the array');
     ok(_.contains({moe:1, larry:3, curly:9}, 3) === true, '_.include on objects checks their values');
     ok(_([1,2,3]).include(2), 'OO-style include');
+    ok(_.include('test this out', 'out'), 'include with a string');
+    ok(!_.include('test this out', 'not included'), 'include with a string (false)');
+    ok(_.include('1 2 3 4', 3), 'include with a string and number');
+    ok(_.include(new String('test this'), 'test'), 'works with boxed strings');
+    ok(_('test this out').include('this'), 'OO-style include with a string');
+  });
+
+  test('collections: startsWith', function () {
+    ok(_.startsWith('a string', 'a str'), 'startsWith');
+    ok(_.startsWith('a string', 'a string'), 'longer startsWith');
+    ok(_.startsWith('a string', ''), 'startsWith empty string');
+    ok(!_.startsWith('a string', 'something else'), 'not startsWith');
+    ok(!_.startsWith('a string', 'a string plus'), 'not startsWith longer');
+    ok(_('a string').startsWith('a s'), 'OO-style startsWith');
+    ok(_.startsWith('1234 test', 1234), 'startsWith coercion');
+    ok(_.startsWith((new String('a string')), 'a string'), 'boxed startsWith');
+    ok(_.startsWith([1, 2, 3, 4, 5], [1, 2]), 'startsWith array');
+    ok(!_.startsWith([1, 2, 3, 4, 5], [1, 3]), 'not startsWith array');
+    ok(_.startsWith([1, 2, 3, 4, 5], []), 'startsWith empty array');
+    ok(!_.startsWith([1, 2, 3, 4], 1), 'startsWith mixed arrays');
+    ok(!_.startsWith({0: 'test'}, {0: 'test'}), 'startsWith objects returns false');
+  });
+
+  test('collections: endsWith', function () {
+    ok(_.endsWith('a string', 'ring'), 'endsWith');
+    ok(_.endsWith('a string', 'a string'), 'longer endsWith');
+    ok(_.endsWith('a string', ''), 'endsWith empty string');
+    ok(!_.endsWith('a string', 'something else'), 'not endsWith');
+    ok(!_.endsWith('a string', 'plus a string'), 'not endsWith longer');
+    ok(_('a string').endsWith('ring'), 'OO-style endsWith');
+    ok(_.endsWith('test 1234', 1234), 'endsWith coercion');
+    ok(_.endsWith((new String('a string')), 'a string'), 'boxed endsWith');
+    ok(_.endsWith([1, 2, 3, 4, 5], [4, 5]), 'endsWith array');
+    ok(!_.endsWith([1, 2, 3, 4, 5], [3, 5]), 'not endsWith array');
+    ok(_.endsWith([1, 2, 3, 4, 5], []), 'endsWith empty array');
+    ok(!_.endsWith([1, 2, 3, 4], 4), 'endsWith mixed arrays');
+    ok(!_.endsWith({0: 'test'}, {0: 'test'}), 'endsWith objects returns false');
   });
 
   test('invoke', function() {
@@ -371,6 +408,23 @@ $(document).ready(function() {
     deepEqual(_.groupBy(matrix, 1), {2: [[1,2]], 3: [[1,3], [2,3]]})
   });
 
+  test('groupBy with selector', function() {
+    var list = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+
+    var selected = _.groupBy(list, 'length', function(num){ return num.substr(0, 2); });
+    deepEqual(selected, {
+      '3': ['on', 'tw', 'si', 'te'],
+      '4': ['fo', 'fi', 'ni'],
+      '5': ['th', 'se', 'ei']
+    });
+
+    var lens = _.groupBy(list, function(num){ return num.indexOf('f'); }, 'length');
+    deepEqual(lens, {
+      '-1': [3, 3, 5, 3, 5, 5, 4, 3],
+      '0': [4, 4],
+    });
+  });
+
   test('countBy', function() {
     var parity = _.countBy([1, 2, 3, 4, 5], function(num){ return num % 2 == 0; });
     equal(parity['true'], 2);
@@ -458,6 +512,20 @@ $(document).ready(function() {
     equal(_.size(new String('hello')), 5, 'can compute the size of string object');
 
     equal(_.size(null), 0, 'handles nulls');
+  });
+
+  test("collections: categorize", function() {
+    var array = ['foo', 'bar', 'baz'];
+    var categorizer = function(chr, value) {
+      return value.charAt(chr);
+    };
+    var result0 = _.categorize(array, categorizer.bind(this, 0));
+    equal(_.keys(result0).join(''), 'fb', 'creates an object with the correct keys');
+    equal(result0.f.length, 1, 'places just one value in the "f" array');
+    equal(result0.f[0], 'foo', 'places the correct value in the "f" array');
+    equal(result0.b.length, 2, 'places the correct values in the "b" array');
+    var result1 = _.categorize(array, categorizer.bind(this, 1));
+    equal(_.keys(result1).join(''), 'oa', 'creates an object with the correct keys using a different categorizer');
   });
 
 });
