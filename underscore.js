@@ -3,13 +3,23 @@
 //     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
 //     Underscore may be freely distributed under the MIT license.
 
-(function() {
+(function (root, factory) {
+  // `root` is a reference to the global object (`window` in the browser, `exports`
+  // on the server).
+  if (typeof exports === 'object') {
+    // CommonJS
+    factory(exports);
+  } else if (typeof define === 'function' && define.amd) {
+    // AMD. Register as a named module.
+    define('underscore', ['exports'], factory);
+  } else {
+    // Establish the root object, `window` in the browser, or `global` on the server.
+    factory(root);
+  }
+} (this, function (root) {
 
   // Baseline setup
   // --------------
-
-  // Establish the root object, `window` in the browser, or `global` on the server.
-  var root = this;
 
   // Save the previous value of the `_` variable.
   var previousUnderscore = root._;
@@ -54,14 +64,7 @@
   // backwards-compatibility for the old `require()` API. If we're in
   // the browser, add `_` as a global object via a string identifier,
   // for Closure Compiler "advanced" mode.
-  if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-      exports = module.exports = _;
-    }
-    exports._ = _;
-  } else {
-    root._ = _;
-  }
+  root._ = _;
 
   // Current version.
   _.VERSION = '1.4.4';
@@ -1341,4 +1344,5 @@
 
   });
 
-}).call(this);
+  return _;
+}));
