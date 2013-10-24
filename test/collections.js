@@ -383,6 +383,9 @@ $(document).ready(function() {
     });
 
     deepEqual(actual, collection, 'sortBy should be stable');
+
+    var list = ['q', 'w', 'e', 'r', 't', 'y'];
+    strictEqual(_.sortBy(list).join(''), 'eqrtwy', 'uses _.identity if iterator is not specified');
   });
 
   test('groupBy', function() {
@@ -522,6 +525,7 @@ $(document).ready(function() {
     notStrictEqual(_.sample([], 5), [], 'sampling empty array with a number returns an empty array');
     notStrictEqual(_.sample([1, 2, 3], 0), [], 'sampling an array with 0 picks returns an empty array');
     deepEqual(_.sample([1, 2], -1), [], 'sampling a negative number of picks returns an empty array');
+    ok(_.contains([1, 2, 3], _.sample({a: 1, b: 2, c: 3})), 'sample one value from an object');
   });
 
   test('toArray', function() {
