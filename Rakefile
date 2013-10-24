@@ -1,6 +1,6 @@
 desc "Use Uglify JS to compress Underscore.js"
 task :build do
-  sh "node_modules/uglify-js/bin/uglifyjs underscore.js -c \"evaluate=false\" --comments \"/    .*/\" -m -o underscore-min.js"
+  sh "node_modules/uglify-js/bin/uglifyjs underscore.js -c \"evaluate=false\" --comments \"/    .*/\" -m --source-map underscore-min.map -o underscore-min.js"
 end
 
 desc "Build the docco documentation"

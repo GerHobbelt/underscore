@@ -76,13 +76,16 @@ $(document).ready(function() {
     var sum = _.reduce([1, 2, 3], function(sum, num){ return sum + num; });
     equal(sum, 6, 'default initial value');
 
+    var prod = _.reduce([1, 2, 3, 4], function(prod, num){ return prod * num; });
+    equal(prod, 24, 'can reduce via multiplication');
+
     var ifnull;
     try {
       _.reduce(null, function(){});
     } catch (ex) {
       ifnull = ex;
     }
-    ok(ifnull instanceof TypeError, 'handles a null (without inital value) properly');
+    ok(ifnull instanceof TypeError, 'handles a null (without initial value) properly');
 
     ok(_.reduce(null, function(){}, 138) === 138, 'handles a null (with initial value) properly');
     equal(_.reduce([], function(){}, undefined), undefined, 'undefined can be passed as a special case');
@@ -105,7 +108,7 @@ $(document).ready(function() {
     } catch (ex) {
       ifnull = ex;
     }
-    ok(ifnull instanceof TypeError, 'handles a null (without inital value) properly');
+    ok(ifnull instanceof TypeError, 'handles a null (without initial value) properly');
 
     var sum = _.reduceRight({a: 1, b: 2, c: 3}, function(sum, num){ return sum + num; });
     equal(sum, 6, 'default initial value on object');
@@ -295,6 +298,11 @@ $(document).ready(function() {
     result = _.where(list, {b: 2});
     equal(result.length, 2);
     equal(result[0].a, 1);
+    
+    result = _.where(list, {a: 1}, true);
+    equal(result.b, 2, "Only get the first object matched.")
+    result = _.where(list, {a: 1}, false);
+    equal(result.length, 3);
   });
 
   test('findWhere', function() {
